@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LeafScan AI — Plant Disease Detector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="logo">
+      <span class="logo-icon">🌿</span>
+      <span class="logo-text">LeafScan <span class="accent">AI</span></span>
+    </div>
+    <p class="tagline">Upload a leaf photo. Get an instant disease diagnosis.</p>
+  </header>
+
+  <main class="container">
+
+    <section class="upload-card" id="upload-card">
+      <h2>Upload a Leaf Image</h2>
+      <p class="muted">Drag &amp; drop an image below, or click to browse. JPG, PNG or WEBP, up to 8&nbsp;MB.</p>
+
+      <form id="upload-form">
+        <div id="dropzone" class="dropzone">
+          <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.webp" hidden />
+          <div id="dropzone-content" class="dropzone-content">
+            <span class="dropzone-icon">📷</span>
+            <p><strong>Click to upload</strong> or drag an image here</p>
+          </div>
+          <img id="preview-img" class="preview-img hidden" alt="Uploaded leaf preview" />
+        </div>
+
+        <div class="actions">
+          <button type="submit" id="analyze-btn" class="btn btn-primary" disabled>Analyze Leaf</button>
+          <button type="button" id="reset-btn" class="btn btn-ghost hidden">Choose Another</button>
+        </div>
+      </form>
+
+      <p id="error-msg" class="error-msg hidden"></p>
+    </section>
+
+    <section id="loading" class="loading-card hidden">
+      <div class="spinner"></div>
+      <p>Analyzing leaf with the AI model&hellip;</p>
+    </section>
+
+    <section id="result-card" class="result-card hidden">
+      <div class="result-header">
+        <h2 id="result-disease">—</h2>
+        <span id="result-badge" class="badge">—</span>
+      </div>
+
+      <div class="confidence-wrap">
+        <div class="confidence-label">
+          <span>Confidence</span>
+          <span id="confidence-value">0%</span>
+        </div>
+        <div class="confidence-bar-track">
+          <div id="confidence-bar" class="confidence-bar-fill"></div>
+        </div>
+      </div>
+
+      <div class="result-body">
+        <div class="result-col">
+          <h3>Description</h3>
+          <p id="result-description" class="muted">—</p>
+        </div>
+        <div class="result-col">
+          <h3>Prevention &amp; Treatment</h3>
+          <ul id="result-steps" class="steps-list"></ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>Built with Flask, TensorFlow/Keras &amp; the PlantVillage dataset.</p>
+  </footer>
+
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const dropzoneContent = document.getElementById('dropzone-content');
+    const fileInput = document.getElementById('file-input');
+    const previewImg = document.getElementById('preview-img');
+    const analyzeBtn = document.getElementById('analyze-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const uploadForm = document.getElementById('upload-form');
+    const errorMsg = document.getElementById('error-msg');
+    const loading = document.getElementById('loading');
+    const resultCard = document.getElementById('result-card');
+
+    let selectedFile = null;
+
+    function showError(message) {
+      errorMsg.textContent = message;
+      errorMsg.classList.remove('hidden');
+    }
+
+    function clearError() {
+      errorMsg.textContent = '';
+      errorMsg.classList.add('hidden');
+    }
+
+    function handleFile(file) {
+      clearError();
+      if (!file) return;
+
+      const allowed = ['image/png', 'image/jpeg', 'image/webp'];
+      if (!allowed.includes(file.type)) {
+        showError('Unsupported file type. Please upload a JPG, PNG, or WEBP image.');
+        return;
+      }
+      if (file.size > 8 * 1024 * 1024) {
+        showError('File too large. Maximum upload size is 8 MB.');
+        return;
+      }
+
+      selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        previewImg.classList.remove('hidden');
+        dropzoneContent.classList.add('hidden');
+      };
+      reader.readAsDataURL(file);
+
+      analyzeBtn.disabled = false;
+      resetBtn.classList.remove('hidden');
+      resultCard.classList.add('hidden');
+    }
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+    ['dragenter', 'dragover'].forEach(evt => {
+      dropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+    });
+    ['dragleave', 'drop'].forEach(evt => {
+      dropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+      });
+    });
+    dropzone.addEventListener('drop', (e) => {
+      const file = e.dataTransfer.files[0];
+      handleFile(file);
+    });
+
+    resetBtn.addEventListener('click', () => {
+      selectedFile = null;
+      fileInput.value = '';
+      previewImg.src = '';
+      previewImg.classList.add('hidden');
+      dropzoneContent.classList.remove('hidden');
+      analyzeBtn.disabled = true;
+      resetBtn.classList.add('hidden');
+      resultCard.classList.add('hidden');
+      clearError();
+    });
+
+    uploadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!selectedFile) return;
+
+      clearError();
+      resultCard.classList.add('hidden');
+      loading.classList.remove('hidden');
+      analyzeBtn.disabled = true;
+
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+
+      try {
+        const res = await fetch('/predict', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Something went wrong while analyzing the image.');
+        }
+
+        renderResult(data);
+      } catch (err) {
+        showError(err.message || 'Failed to analyze image. Please try again.');
+      } finally {
+        loading.classList.add('hidden');
+        analyzeBtn.disabled = false;
+      }
+    });
+
+    function renderResult(data) {
+      document.getElementById('result-disease').textContent = data.disease_name;
+
+      const badge = document.getElementById('result-badge');
+      if (data.is_healthy) {
+        badge.textContent = 'Healthy';
+        badge.className = 'badge badge-healthy';
+      } else {
+        badge.textContent = 'Disease Detected';
+        badge.className = 'badge badge-warning';
+      }
+
+      const confidence = data.confidence || 0;
+      document.getElementById('confidence-value').textContent = confidence + '%';
+      document.getElementById('confidence-bar').style.width = confidence + '%';
+
+      document.getElementById('result-description').textContent = data.description;
+
+      const stepsList = document.getElementById('result-steps');
+      stepsList.innerHTML = '';
+      (data.prevention_steps || []).forEach(step => {
+        const li = document.createElement('li');
+        li.textContent = step;
+        stepsList.appendChild(li);
+      });
+
+      resultCard.classList.remove('hidden');
+    }
+  </script>
+
+</body>
+</html>

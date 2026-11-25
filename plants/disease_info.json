@@ -1,0 +1,64 @@
+{
+  "Tomato___Early_blight": {
+    "description": "Early blight is a fungal disease (Alternaria solani) causing dark concentric-ring spots on older leaves, which eventually yellow and drop.",
+    "prevention_steps": [
+      "Remove and destroy infected leaves promptly.",
+      "Avoid overhead watering; water at the base of the plant.",
+      "Apply a copper-based or chlorothalonil fungicide as needed.",
+      "Rotate crops and avoid planting tomatoes in the same spot each year."
+    ]
+  },
+  "Tomato___Late_blight": {
+    "description": "Late blight (Phytophthora infestans) causes large, water-soaked, grey-green lesions on leaves and stems that spread rapidly in cool, wet weather.",
+    "prevention_steps": [
+      "Destroy infected plants immediately to stop spread.",
+      "Improve air circulation and avoid overhead irrigation.",
+      "Apply a preventive fungicide during humid periods.",
+      "Use resistant tomato varieties where available."
+    ]
+  },
+  "Tomato___healthy": {
+    "description": "This leaf shows no visible signs of disease and appears healthy.",
+    "prevention_steps": [
+      "Continue regular watering and balanced fertilization.",
+      "Monitor leaves weekly for early signs of pests or disease.",
+      "Maintain good airflow between plants."
+    ]
+  },
+  "Potato___Early_blight": {
+    "description": "Early blight in potatoes causes dark brown spots with concentric rings, typically starting on older, lower leaves.",
+    "prevention_steps": [
+      "Remove infected foliage and dispose of it away from the field.",
+      "Use certified disease-free seed potatoes.",
+      "Apply fungicide at the first sign of symptoms.",
+      "Practice 2-3 year crop rotation."
+    ]
+  },
+  "Potato___Late_blight": {
+    "description": "Late blight is a fast-spreading fungal-like disease causing dark, water-soaked lesions on leaves and stems, often with a white mold ring on the underside.",
+    "prevention_steps": [
+      "Destroy infected plants to prevent spread to healthy ones.",
+      "Avoid overhead watering and reduce leaf wetness duration.",
+      "Apply fungicide proactively in cool, wet conditions.",
+      "Plant resistant potato varieties."
+    ]
+  },
+  "Apple___Apple_scab": {
+    "description": "Apple scab is caused by the fungus Venturia inaequalis, producing olive-green to black velvety spots on leaves and fruit.",
+    "prevention_steps": [
+      "Rake and destroy fallen leaves each autumn to reduce spores.",
+      "Apply fungicide sprays starting at bud break.",
+      "Prune trees to improve air circulation.",
+      "Choose scab-resistant apple varieties for new plantings."
+    ]
+  },
+  "Corn_(maize)___Common_rust_": {
+    "description": "Common rust appears as small, reddish-brown pustules scattered across both leaf surfaces, caused by the fungus Puccinia sorghi.",
+    "prevention_steps": [
+      "Plant rust-resistant corn hybrids.",
+      "Avoid excessive nitrogen fertilization.",
+      "Apply foliar fungicide if infection is severe before tasseling.",
+      "Monitor fields regularly during warm, humid weather."
+    ]
+  }
+}
